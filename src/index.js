@@ -12,18 +12,22 @@ import CRUDTable,
 // Component's Base CSS
 import './index.css';
 
-const DescriptionRenderer = ({ field }) => <textarea {...field} />;
+const CategoryRenderer = ({ field }) => <textarea {...field} />;
 
-let tasks = [
+let products = [
     {
         id: 1,
-        title: 'Create an example',
-        description: 'Create an example of how to use the component',
+        name: 'Create an example',
+        category: 'Create an example of how to use the component',
+        price: '20',
+        date: '15/2/2018'
     },
     {
         id: 2,
-        title: 'Improve',
-        description: 'Improve the component!',
+        name: 'Improve',
+        category: 'Improve the component!',
+        price: '50',
+        date: '23/2/2018'
     },
 ];
 
@@ -50,31 +54,33 @@ const getSorter = (data) => {
 };
 
 
-let count = tasks.length;
+let count = products.length;
 const service = {
     fetchItems: (payload) => {
-        let result = Array.from(tasks);
+        let result = Array.from(products);
         result = result.sort(getSorter(payload.sort));
         return Promise.resolve(result);
     },
-    create: (task) => {
+    create: (product) => {
         count += 1;
-        tasks.push({
-            ...task,
+        products.push({
+            ...product,
             id: count,
         });
-        return Promise.resolve(task);
+        return Promise.resolve(product);
     },
     update: (data) => {
-        const task = tasks.find(t => t.id === data.id);
-        task.title = data.title;
-        task.description = data.description;
-        return Promise.resolve(task);
+        const product = products.find(t => t.id === data.id);
+        product.name = data.name;
+        product.category = data.category;
+        product.price = data.price;
+        product.date = data.date;
+        return Promise.resolve(product);
     },
     delete: (data) => {
-        const task = tasks.find(t => t.id === data.id);
-        tasks = tasks.filter(t => t.id !== task.id);
-        return Promise.resolve(task);
+        const product = products.find(t => t.id === data.id);
+        products = products.filter(t => t.id !== product.id);
+        return Promise.resolve(product);
     },
 };
 
@@ -85,7 +91,7 @@ const styles = {
 const Example = () => (
     <div style={styles.container}>
         <CRUDTable
-            caption="Tasks"
+            caption="Products List"
             fetchItems={payload => service.fetchItems(payload)}
         >
             <Fields>
@@ -93,57 +99,74 @@ const Example = () => (
                     name="id"
                     label="Id"
                     hideInCreateForm
+                    hideInUpdateForm
                 />
                 <Field
-                    name="title"
-                    label="Title"
-                    placeholder="Title"
+                    name="name"
+                    label="Name"
+                    placeholder="name"
                 />
                 <Field
-                    name="description"
-                    label="Description"
-                    render={DescriptionRenderer}
+                    name="category"
+                    label="Category"
+                    render={CategoryRenderer}
+                />
+                <Field
+                    name="price"
+                    label="Price ($)"
+                    render={CategoryRenderer}
+                />
+
+                <Field
+                    name="date"
+                    label="Created Date"
+                    hideInCreateForm
+                    hideInUpdateForm
                 />
             </Fields>
             <CreateForm
-                title="Task Creation"
-                message="Create a new task!"
-                trigger="Create Task"
-                onSubmit={task => service.create(task)}
+                name="Add Product"
+                message="Add a new product!"
+                trigger="Add Product"
+                onSubmit={product => service.create(product)}
                 submitText="Create"
                 validate={(values) => {
                     const errors = {};
-                    if (!values.title) {
-                        errors.title = 'Please, provide task\'s title';
+                    if (!values.name) {
+                        errors.name = 'Please, provide product\'s name';
                     }
 
-                    if (!values.description) {
-                        errors.description = 'Please, provide task\'s description';
+                    if (!values.category) {
+                        errors.category = 'Please, provide product\'s category';
                     }
 
+                    if (!values.price || values.price <= 0) {
+                        errors.name = 'Please, provide a positive product\'s price';
+                    }
+                    
                     return errors;
                 }}
             />
 
             <UpdateForm
-                title="Task Update Process"
-                message="Update task"
+                name="product Update Process"
+                message="Update product"
                 trigger="Update"
-                onSubmit={task => service.update(task)}
+                onSubmit={product => service.update(product)}
                 submitText="Update"
                 validate={(values) => {
                     const errors = {};
 
-                    if (!values.id) {
-                        errors.id = 'Please, provide id';
+                    if (!values.name) {
+                        errors.name = 'Please, provide product\'s name';
                     }
 
-                    if (!values.title) {
-                        errors.title = 'Please, provide task\'s title';
+                    if (!values.category) {
+                        errors.category = 'Please, provide product\'s category';
                     }
 
-                    if (!values.description) {
-                        errors.description = 'Please, provide task\'s description';
+                    if (!values.price || values.price <= 0) {
+                        errors.name = 'Please, provide a positive product\'s price';
                     }
 
                     return errors;
@@ -151,15 +174,15 @@ const Example = () => (
             />
 
             <DeleteForm
-                title="Task Delete Process"
-                message="Are you sure you want to delete the task?"
+                name="Product Delete Process"
+                message="Are you sure you want to delete the product?"
                 trigger="Delete"
-                onSubmit={task => service.delete(task)}
+                onSubmit={product => service.delete(product)}
                 submitText="Delete"
                 validate={(values) => {
                     const errors = {};
-                    if (!values.id) {
-                        errors.id = 'Please, provide id';
+                    if (!values.name) {
+                        errors.id = 'Please, provide product name';
                     }
                     return errors;
                 }}
